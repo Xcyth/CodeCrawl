@@ -123,7 +123,7 @@ const printMetrics = async (folder, metrics) => {
 
   const table = new Table({
     head: [chalk.blue.bold(`${folder} folder Metrics`), 'Values'],
-    colWidths: [30, 20],
+    colWidths: [40, 20],
   });
 
   table.push(
@@ -157,26 +157,34 @@ program
 const options = program.opts();
 
 (async () => {
-  const rootDir = path.resolve(__dirname);
+  const rootDir = path.resolve('.');
   const srcDir = path.join(rootDir, 'src');
 
-  if (options.root || options.all) {
-    const rootMetrics = processDirectory(rootDir);
-    await printMetrics('Root', rootMetrics);
+  if (options.root || options.all || !options.src && !options.dir) {
+    if (fs.existsSync(rootDir)) {
+      const rootMetrics = processDirectory(rootDir);
+      await printMetrics('Root', rootMetrics);
+    } else {
+      console.error(`Error: Root directory "${rootDir}" does not exist.`);
+    }
   }
 
   if (options.src || options.all) {
-    const srcMetrics = processDirectory(srcDir);
-    await printMetrics('src', srcMetrics);
+    if (fs.existsSync(srcDir)) {
+      const srcMetrics = processDirectory(srcDir);
+      await printMetrics('src', srcMetrics);
+    } else {
+      console.error(`Error: src directory "${srcDir}" does not exist.`);
+    }
   }
 
   if (options.dir) {
-    const specifiedDir = path.resolve(options.dir);
-    const specifiedDirMetrics = processDirectory(specifiedDir);
-    await printMetrics(options.dir, specifiedDirMetrics);
-  }
-
-  if (!options.root && !options.src && !options.all && !options.dir) {
-    program.help();
+    const customDir = path.resolve(options.dir);
+    if (fs.existsSync(customDir)) {
+      const customMetrics = processDirectory(customDir);
+      await printMetrics(customDir, customMetrics);
+    } else {
+      console.error(`Error: Specified directory "${customDir}" does not exist.`);
+    }
   }
 })();
