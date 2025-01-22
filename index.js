@@ -145,6 +145,7 @@ const printMetrics = async (folder, metrics) => {
 };
 
 program
+  .name('codecrawl')
   .version('1.0.0')
   .description('CLI tool to gather metrics from code files')
   .option('-r, --root', 'Include root folder metrics')
